@@ -16,6 +16,7 @@ npm install -g @vue/cli
 ```
 
 ## 项目安装  
+（请[云端部署](https://github.com/sadanwawa/history-calendar-cloud)完成后，再下载客户端项目）  
 
 项目克隆到本地，然后命令行窗口执行安装命令
 
