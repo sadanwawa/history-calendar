@@ -27,7 +27,7 @@
                                 </view>
                             </view>
 
-                            <!--<view class="btn-editor" v-if="computedShowWrite" @click="onClickEdite(item.uid)"></view>-->
+                            <view class="btn-editor" v-if="computedShowWrite" @click="onClickEdite(item.uid)"></view>
 
                         </view>
                         <loading-view :isShow="item.state===1"></loading-view>
@@ -270,10 +270,16 @@ module.exports = {
                      //
                      for (let i = 0; i < this.boxList.length; i++) {
                          let item = this.boxList[i];
-                         //this.$set(item,'loading',true); //状态改变才能激活响应
-                         this.$set(item, 'state', 1);
-                         this.$set(item, 'txtOpa', 1);
+
+                         item.state=1;
+                         item.txtOpa=1;
+
+                         //
+                         // this.$set(item, 'state', 1);
+                         // this.$set(item, 'txtOpa', 1);
                          this.$set(item, 'imgOpa', 0);
+
+                         //this.boxList[i]=Object.assign({},this.boxList[i],{state:1,txtOpa:1,imgOpa:0})
                      }
                      //请求数据
                      this.initHistoryList()
@@ -327,6 +333,8 @@ module.exports = {
                 let box = this.boxList[this.boxIndex];
                 let data = this.historyList[this.dataIndex];
 
+                let changeValues=[];
+
                 if (box) {
                     if (data) {
 
@@ -342,19 +350,17 @@ module.exports = {
                             this.saveShareData(null)
                         }
 
-                        this.$set(box, 'visible', true);
+                        changeValues.push(['visible',true]);
 
                         if (box.uid === data.uid) return;
 
-                        this.$set(box, 'id', (this.dataIndex + 1));//显示索引
-                        this.$set(box, 'uid', data.uid);//唯一事件标识
-                        this.$set(box, 'title', data.title);
-                        this.$set(box, 'desc', data.desc);
-                        this.$set(box, 'image', data.image);
-                        this.$set(box, 'date', data.date);
-
-                        //被新数据覆盖
-                        this.$set(box, 'imgOpa', 0);
+                        changeValues.push(['id',(this.dataIndex + 1)]);
+                        changeValues.push(['uid',data.uid]);
+                        changeValues.push(['title',data.title]);
+                        changeValues.push(['desc',data.desc]);
+                        changeValues.push(['image',data.image]);
+                        changeValues.push(['date',data.date]);
+                        changeValues.push(['imgOpa',0]);
 
                         /*
                            1、loading状态
@@ -363,25 +369,35 @@ module.exports = {
                            4、数据异常状态/重新请求；
                         */
                         if (this.loadingAll && this.dataIndex === this.historyList.length - 1) { //最后一个是没有更多内容提示状态
-                            this.$set(box, 'state', 3);
+                            changeValues.push(['state',3]);
+
                         } else {
-                            this.$set(box, 'state', 2);
+                            changeValues.push(['state',2]);
                         }
 
                     } else {
-                        //this.$set(box,'loading',true);
-                        this.$set(box, 'state', 1);
+                        changeValues.push(['state',1]);
                     }
+
+
+                    let updateValue=changeValues.pop();
+                    for(let j=0;j<changeValues.length;j++){
+                        box[changeValues[j][0]]=changeValues[j][1];
+                    }
+                    this.$set(box, updateValue[0], updateValue[1]);
+
                 }
 
             },
 
             onTouchStart(item) {
-                this.$set(item, 'txtOpa', 0);
+                 item.txtOpa=0;
+                // this.$set(item, 'txtOpa', 0);
                 this.$set(item, 'filter', 0);
             },
             onTouchEnd(item) {
-                this.$set(item, 'txtOpa', 1);
+                 item.txtOpa=1
+                // this.$set(item, 'txtOpa', 1);
                 this.$set(item, 'filter', 5);
             },
             onLoadImg(item) {
@@ -459,9 +475,9 @@ module.exports = {
             },
 
             onClickEdite(uid) {
-                // uni.navigateTo({
-                //     url: '/pages/index/input?uid=' + uid
-                // })
+                uni.navigateTo({
+                    url: '/pages/index/input?uid=' + uid
+                })
             },
 
             ...mapActions(['saveShareData']),
